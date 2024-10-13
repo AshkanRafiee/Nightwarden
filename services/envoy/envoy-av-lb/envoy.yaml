@@ -1,0 +1,40 @@
+static_resources:
+  listeners:
+  - address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: 3310
+    filter_chains:
+    - filters:
+      - name: envoy.tcp_proxy
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+          stat_prefix: ingress_tcp
+          cluster: "clamav"
+  clusters:
+  - name: clamav
+    connect_timeout: 0.25s
+    type: strict_dns
+    lb_policy: LEAST_REQUEST
+    load_assignment:
+      cluster_name: clamav
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: clamav1
+                port_value: 3310
+                ipv4_compat: true
+        - endpoint:
+            address:
+              socket_address:
+                address: clamav2
+                port_value: 3310
+                ipv4_compat: true
+admin:
+  access_log_path: "/dev/null"
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 8001

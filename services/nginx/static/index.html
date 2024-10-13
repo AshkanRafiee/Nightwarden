@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Scanner</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f7f9fc;
+            margin: 0;
+            padding: 0 16px;
+            box-sizing: border-box;
+        }
+        .container {
+            background: #fff;
+            padding: 32px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            max-width: 400px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 24px;
+            color: #333;
+        }
+        .file-input-wrapper {
+            margin-bottom: 16px;
+            position: relative;
+            width: 100%;
+        }
+        input[type="file"] {
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            cursor: pointer;
+        }
+        .file-label {
+            display: inline-block;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: left;
+            transition: border-color 0.3s;
+            background-color: #f4f4f4;
+            color: #555;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .file-label:hover {
+            border-color: #007bff;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 14px 0;
+            cursor: pointer;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-top: 16px;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        button:not(:disabled):hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #555;
+            text-align: left;
+            width: 100%;
+            box-sizing: border-box;
+            word-wrap: break-word;
+        }
+        .result p {
+            margin: 8px 0;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
+        .error {
+            color: #d9534f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Scan Your File</h1>
+        <form id="uploadForm">
+            <div class="file-input-wrapper">
+                <label for="fileInput" class="file-label" id="fileLabel">Choose a file...</label>
+                <input type="file" id="fileInput" name="file" required>
+            </div>
+            <input type="text" id="apiKeyInput" placeholder="Enter your API key" required style="width: calc(100% - 20px); padding: 10px; margin-bottom: 16px;">
+            <button type="submit" id="uploadButton" disabled>Upload and Scan</button>
+        </form>
+        <div class="result" id="result"></div>
+        <div id="statusDiv" style="margin-top: 20px;">
+            <input type="text" id="fileIdInput" placeholder="Enter file ID to check status" style="width: calc(100% - 20px); padding: 10px;">
+            <button id="checkStatusButton" style="margin-top: 10px;">Check Status</button>
+            <div id="statusResult" class="result"></div>
+        </div>
+    </div>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadButton = document.getElementById('uploadButton');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const resultDiv = document.getElementById('result');
+        const fileLabel = document.getElementById('fileLabel');
+        const fileIdInput = document.getElementById('fileIdInput');
+        const checkStatusButton = document.getElementById('checkStatusButton');
+        const statusResult = document.getElementById('statusResult');
+
+        // Clear the file input and disable button on page load
+        window.addEventListener('load', () => {
+            fileInput.value = '';
+            uploadButton.disabled = true;
+            fileLabel.textContent = 'Choose a file...';
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                uploadButton.disabled = false;
+                fileLabel.textContent = fileInput.files[0].name;
+            } else {
+                uploadButton.disabled = true;
+                fileLabel.textContent = 'Choose a file...';
+            }
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            uploadButton.disabled = true;
+            uploadButton.textContent = 'Uploading...';
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            const apiKey = apiKeyInput.value.trim();
+
+            if (!apiKey) {
+                resultDiv.innerHTML = '<p class="error">API key is required</p>';
+                uploadButton.textContent = 'Upload and Scan';
+                uploadButton.disabled = false;
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/scan', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'x-api-key': apiKey
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorResult = await response.json();
+                    throw new Error(errorResult.detail || 'Unknown error occurred');
+                }
+
+                const result = await response.json();
+                resultDiv.innerHTML = `<p><strong>File ID:</strong> ${result.file_id}</p><p><strong>Status:</strong> ${result.status}</p>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            } finally {
+                fileInput.value = '';
+                fileLabel.textContent = 'Choose a file...';
+                uploadButton.textContent = 'Upload and Scan';
+                uploadButton.disabled = true;
+            }
+        });
+
+        checkStatusButton.addEventListener('click', async () => {
+            const fileId = fileIdInput.value.trim();
+            const apiKey = apiKeyInput.value.trim();
+
+            if (!apiKey) {
+                statusResult.innerHTML = '<p class="error">API key is required</p>';
+                return;
+            }
+
+            if (!fileId) {
+                statusResult.innerHTML = '<p class="error">Please enter a file ID</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/v1/scan/${fileId}`, {
+                    method: 'GET',
+                    headers: {
+                        'x-api-key': apiKey
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorResult = await response.json();
+                    throw new Error(errorResult.detail || 'Unknown error occurred');
+                }
+
+                const result = await response.json();
+                let statusMessage = `<p><strong>ID:</strong> ${result.file_id}</p><p><strong>Status:</strong> ${result.status}</p>`;
+
+                if (result.status === "finished") {
+                    statusMessage += `<p><strong>Infected:</strong> ${result.is_infected ? 'yes' : 'no'}</p>`;
+                }
+
+                if (result.detail) {
+                    statusMessage += `<p><strong>Detail:</strong> ${result.detail}</p>`;
+                }
+
+                statusResult.innerHTML = statusMessage;
+            } catch (error) {
+                statusResult.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

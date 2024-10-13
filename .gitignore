@@ -1,0 +1,3 @@
+# Ignore the database folder
+clamav/database/
+nginx/ssl/
