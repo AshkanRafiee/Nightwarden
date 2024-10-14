@@ -48,7 +48,7 @@ The purpose of AVService is to eliminate the need for each development team to b
 1. Clone the repository:
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/AshkanRafiee/AVService
    cd AVService
    ```
 
