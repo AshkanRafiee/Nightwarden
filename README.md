@@ -1,11 +1,11 @@
 
-# AVService
+# Nightwarden
 
 ## Overview
 
-AVService is a microservices-based architecture for handling antivirus scanning. It orchestrates multiple services, including an API, load balancers, Nginx for serving static content, Redis for managing API keys and file metadata, workers for processing scanning tasks, and ClamAV as the core scanner (which can be replaced with other antivirus solutions if preferred). This service is containerized using Docker and can be deployed easily with Docker Compose or, with a few adjustments, in Kubernetes (K8s).
+Nightwarden is a microservices-based architecture for handling antivirus scanning. It orchestrates multiple services, including an API, load balancers, Nginx for serving static content, Redis for managing API keys and file metadata, workers for processing scanning tasks, and ClamAV as the core scanner (which can be replaced with other antivirus solutions if preferred). This service is containerized using Docker and can be deployed easily with Docker Compose or, with a few adjustments, in Kubernetes (K8s).
 
-The purpose of AVService is to eliminate the need for each development team to build antivirus scanning functionality into their services when handling file uploads. It can also serve as a central antivirus service within a single organization, providing scanning capabilities to multiple applications and services, ensuring consistent and efficient antivirus protection across the organization.
+The purpose of Nightwarden is to eliminate the need for each development team to build antivirus scanning functionality into their services when handling file uploads. It can also serve as a central antivirus service within a single organization, providing scanning capabilities to multiple applications and services, ensuring consistent and efficient antivirus protection across the organization.
 
 ## Project Structure
 
@@ -48,8 +48,8 @@ The purpose of AVService is to eliminate the need for each development team to b
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/AshkanRafiee/AVService
-   cd AVService
+   git clone https://github.com/AshkanRafiee/Nightwarden
+   cd Nightwarden
    ```
 
 2. Create a `.env` file with the necessary environment variables (you can refer to `.env.example`).
