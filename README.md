@@ -26,7 +26,7 @@ The purpose of Nightwarden is to eliminate the need for each development team to
 │   └── requirements.txt   # Python dependencies for the worker
 ├── tests/                 # Performance and upload test scripts
 ├── docker-compose.yml     # Docker Compose file to orchestrate services
-└── .env                   # Environment variables file (not included in the repo)
+└── .env                   # Environment variables file (not included in the repo, you can use .env.example as a template)
 ```
 
 ## Features
