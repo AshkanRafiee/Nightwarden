@@ -43,7 +43,7 @@ if not os.path.exists(settings.TEMP_STORAGE_PATH):
 app = FastAPI(
     title="Nightwarden",
     description="Antivirus as a Service",
-    version="0.0.1"
+    version="0.2.1"
 )
 
 # Setup logging
